@@ -11,7 +11,6 @@ class Game
     end
   end
 
-
   private
   
   # This method returns one random code color out of the 4 possibilities
