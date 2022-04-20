@@ -28,11 +28,7 @@ class Game
       current_guess = player.guess
       display_keypegs(current_guess)
     end
-    if correct_guess?(current_guess)
-      puts "CONGRATS #{player.name}! You guessed the right code in #{@turn_number} turns!"
-    else
-      puts "GAMEOVER. #{player.name}, you did not guess the code within 12 turns."
-    end
+    end_game(player)
   end
 
   private
@@ -60,7 +56,7 @@ class Game
   # Elements are set to nil once they have been processed to avoid repeated counts.
   def determine_keypegs(guess_array)
     keypegs = []
-    guess_copy = guess_array
+    guess_copy = guess_array.dup
     guess_copy.each_with_index do |color, idx|
       if color == @secret_code[idx] # Correct color and position places Black Keypeg.
         keypegs.push('BK')
@@ -71,6 +67,17 @@ class Game
       end
     end
     keypegs
+  end
+
+  def end_game(player)
+    case @turn_number
+    when 12
+      puts "GAMEOVER. #{player.name}, you did not guess the code within 12 turns."
+    when 1
+      puts "CONGRATS #{player.name}! You guessed the right code in #{@turn_number} turn!"
+    else
+      puts "CONGRATS #{player.name}! You guessed the right code in #{@turn_number} turns!"
+    end
   end
 end
 
