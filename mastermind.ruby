@@ -14,8 +14,8 @@ class Game
 
   def initialize
     @turn_number = 0
-    @secret_code = Array.new(6)
-    (0..5).each do |i|
+    @secret_code = Array.new(4)
+    (0..3).each do |i|
       @secret_code[i] = random_color
     end
   end
@@ -24,7 +24,9 @@ class Game
     current_guess = ''
     until correct_guess?(current_guess) || @turn_number == 12
       @turn_number += 1
+      puts "ROUND #{@turn_number}"
       current_guess = player.guess
+      display_keypegs(current_guess)
     end
     if correct_guess?(current_guess)
       puts "CONGRATS #{player.name}! You guessed the right code in #{@turn_number} turns!"
@@ -47,6 +49,29 @@ class Game
   def correct_guess?(guess)
     guess == @secret_code
   end
+
+  def display_keypegs(guess_array)
+    print 'Keypeg Results: '
+    puts determine_keypegs(guess_array).shuffle.join(', ') # Result is shuffled to retain info
+    puts "\n"
+  end
+
+  # This method determines the keypegs to display based on the user's response.
+  # Elements are set to nil once they have been processed to avoid repeated counts.
+  def determine_keypegs(guess_array)
+    keypegs = []
+    guess_copy = guess_array
+    guess_copy.each_with_index do |color, idx|
+      if color == @secret_code[idx] # Correct color and position places Black Keypeg.
+        keypegs.push('BK')
+        guess_copy[idx] = nil
+      elsif guess_copy.include?(color) # Correct color in wrong position places White Keypeg
+        keypegs.push('WH')
+        guess_copy[idx] = nil
+      end
+    end
+    keypegs
+  end
 end
 
 # This class contains the methods and variables for each player
@@ -60,9 +85,18 @@ class Player
   end
 
   def guess
-    print "#{@name}, please enter your guess for the 6 term secret colour code,"\
-          " separated by spaces (Available Colors: #{CODE_COLORS.join(', ')}): "
-    gets.chomp.split(' ')
+    current_guess = []
+    while valid_guess?(current_guess) == false
+      puts "#{@name}, please enter your guess for the 4 term secret color code separated by spaces: "
+      puts "Available Colors: #{CODE_COLORS.join(', ')}"
+      print 'YOUR INPUT: '
+      current_guess = gets.chomp.upcase.split(' ')
+    end
+    current_guess
+  end
+
+  def valid_guess?(guess)
+    guess.all? { |color| CODE_COLORS.include?(color) } && guess.length == 4
   end
 end
 
