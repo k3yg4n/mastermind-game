@@ -25,6 +25,7 @@ class Game
     until correct_guess?(current_guess) || @turn_number == 12
       @turn_number += 1
       puts "ROUND #{@turn_number}"
+      puts "SECRET CODE: #{@secret_code}"
       current_guess = player.guess
       display_keypegs(current_guess)
     end
@@ -47,26 +48,43 @@ class Game
   end
 
   def display_keypegs(guess_array)
-    print 'Keypeg Results: '
-    puts determine_keypegs(guess_array).shuffle.join(', ') # Result is shuffled to retain info
+    puts 'Keypeg Results:'
+    determine_keypegs(guess_array)
     puts "\n"
   end
 
-  # This method determines the keypegs to display based on the user's response.
-  # Elements are set to nil once they have been processed to avoid repeated counts.
+  # This method returns an array of the keypegs to display based on the player's guess.
   def determine_keypegs(guess_array)
-    keypegs = []
     guess_copy = guess_array.dup
+    secret_copy = @secret_code.dup
+    puts "BK: #{get_black_keypegs(guess_copy, secret_copy)}"
+    puts "WH: #{get_white_keypegs(guess_copy, secret_copy)}"
+  end
+
+  # Returns the number of black keypegs and nils processed terms in secret_copy
+  def get_black_keypegs(guess_copy, secret_copy)
+    num_bk_keypegs = 0
     guess_copy.each_with_index do |color, idx|
-      if color == @secret_code[idx] # Correct color and position places Black Keypeg.
-        keypegs.push('BK')
-        guess_copy[idx] = nil
-      elsif guess_copy.include?(color) # Correct color in wrong position places White Keypeg
-        keypegs.push('WH')
-        guess_copy[idx] = nil
-      end
+      next unless color.nil? == false && color == secret_copy[idx]
+
+      num_bk_keypegs += 1
+      guess_copy[idx] = nil
+      secret_copy[idx] = nil
     end
-    keypegs
+    num_bk_keypegs
+  end
+
+  def get_white_keypegs(guess_copy, secret_copy)
+    num_wh_keypegs = 0
+    guess_copy.each_with_index do |color, idx|
+      next unless color.nil? == false && secret_copy.include?(color)
+
+      idx_to_nil = secret_copy.find_index(color)
+      secret_copy[idx_to_nil] = nil
+      guess_copy[idx] = nil
+      num_wh_keypegs += 1
+    end
+    num_wh_keypegs
   end
 
   def end_game(player)
@@ -96,7 +114,7 @@ class Player
     while valid_guess?(current_guess) == false
       puts "#{@name}, please enter your guess for the 4 term secret color code separated by spaces: "
       puts "Available Colors: #{CODE_COLORS.join(', ')}"
-      print 'YOUR INPUT: '
+      print 'Your Guess: '
       current_guess = gets.chomp.upcase.split(' ')
     end
     current_guess
@@ -108,7 +126,7 @@ class Player
 end
 
 my_game = Game.new
-p my_game.secret_code
+puts "SECRET CODE (FOR TESTING): #{my_game.secret_code}"
 player_one = Player.new('Keegan', my_game)
 
 my_game.play(player_one)
