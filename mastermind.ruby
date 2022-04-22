@@ -9,7 +9,6 @@ end
 # This is the class that stores the variables and methods for the game
 class Game
   include Colors
-  attr_reader :secret_code # TO REMOVE
   attr_accessor :turn_number
 
   def initialize
@@ -25,7 +24,6 @@ class Game
     until correct_guess?(current_guess) || @turn_number == 12
       @turn_number += 1
       puts "ROUND #{@turn_number}"
-      puts "SECRET CODE: #{@secret_code}"
       current_guess = player.guess
       display_keypegs(current_guess)
     end
@@ -48,17 +46,12 @@ class Game
   end
 
   def display_keypegs(guess_array)
-    puts 'Keypeg Results:'
-    determine_keypegs(guess_array)
-    puts "\n"
-  end
-
-  # This method returns an array of the keypegs to display based on the player's guess.
-  def determine_keypegs(guess_array)
     guess_copy = guess_array.dup
     secret_copy = @secret_code.dup
-    puts "BK: #{get_black_keypegs(guess_copy, secret_copy)}"
-    puts "WH: #{get_white_keypegs(guess_copy, secret_copy)}"
+    puts 'Keypeg Results:'
+    puts "BK (Correct color in the correct location): #{get_black_keypegs(guess_copy, secret_copy)}"
+    puts "WH (Correct color in the wrong location): #{get_white_keypegs(guess_copy, secret_copy)}"
+    puts "\n"
   end
 
   # Returns the number of black keypegs and nils processed terms in secret_copy
@@ -126,7 +119,6 @@ class Player
 end
 
 my_game = Game.new
-puts "SECRET CODE (FOR TESTING): #{my_game.secret_code}"
 player_one = Player.new('Keegan', my_game)
 
 my_game.play(player_one)
